@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: mariaflor-assistant
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - mariaflor-network
+
+  ngrok:
+    image: wernight/ngrok
+    container_name: mariaflor-ngrok
+    ports:
+      - "4040:4040"
+    environment:
+      - NGROK_AUTH=${NGROK_AUTH_TOKEN}
+      - NGROK_PROTOCOL=http
+      - NGROK_PORT=app:5000
+    depends_on:
+      - app
+    networks:
+      - mariaflor-network
+
+networks:
+  mariaflor-network:
+    driver: bridge
